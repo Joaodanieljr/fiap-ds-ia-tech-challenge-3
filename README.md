@@ -33,39 +33,41 @@ As decisões de modelagem e arquitetura foram pensadas para evitar vazamento de 
 ├── notebooks/
 │   ├── 00_base_analitica.ipynb
 │   ├── EDA_fase3.ipynb
-│   ├── exploracao_inicial.ipynb
 │   └── feature_engineering_tech_challenge_3.ipynb
+├── reports/
+│   ├── dicionario_dados.md
+│   └── readme_secao_base.md
 ├── src/
 │   ├── data/
 │   │   ├── __init__.py
 │   │   └── load_data.py
+│   ├── evaluation/
+│   │   ├── __init__.py
+│   │   └── metrics.py
 │   ├── features/
 │   │   ├── __init__.py
 │   │   └── feature_engineering.py
 │   ├── modeling/
 │   │   ├── __init__.py
 │   │   └── train_model.py
-│   ├── evaluation/
-│   │   ├── __init__.py
-│   │   └── metrics.py
 │   ├── pipeline/
 │   │   ├── __init__.py
 │   │   └── run_pipeline.py
+│   ├── preprocessing/
+│   │   ├── __init__.py
+│   │   └── data_preprocessing.py
+│   ├── utils/
+│   │   └── __init__.py
 │   ├── visualization/
 │   │   ├── __init__.py
 │   │   └── plots.py
-│   ├── utils/
-│   │   └── __init__.py
 │   └── __init__.py
-├── reports/
-│   ├── dicionario_dados.md
-│   ├── plano_organizacao_projeto.md
-│   └── readme_secao_base.md
 ├── tests/
 │   ├── __init__.py
 │   ├── test_feature_engineering.py
 │   ├── test_modeling.py
 │   └── test_pipeline.py
+├── .gitignore
 ├── main.py
 ├── README.md
 ├── requirements.txt
@@ -80,7 +82,8 @@ As decisões de modelagem e arquitetura foram pensadas para evitar vazamento de 
 - `src/evaluation/`: métricas, comparação e avaliação
 - `src/pipeline/`: orquestração do fluxo principal
 - `src/visualization/`: geração de gráficos e visualizações
-- `reports/`: documentação do projeto e dicionário de dados
+- `src/preprocessing/`: preparação inicial de dados e transformações auxiliares
+- `reports/`: documentação técnica e dicionário de dados
 - `tests/`: validação automatizada das funcionalidades principais
 
 ---
@@ -148,7 +151,13 @@ pip install -r requirements.txt
 python main.py --data-path data/processed/seu_arquivo.csv --target-column alfabetizado --group-column id_municipio --output-model models/modelo.pkl
 ```
 
-### 6.3. Executar testes
+### 6.3. Executar comparação de modelos por município
+
+```bash
+python main.py --data-path data/processed/seu_arquivo.csv --target-column alfabetizado --group-column id_municipio --compare-models --metric f1
+```
+
+### 6.4. Executar testes
 
 ```bash
 python -m pytest -q tests/test_feature_engineering.py tests/test_modeling.py tests/test_pipeline.py
@@ -173,23 +182,24 @@ Essas métricas estão implementadas em [src/evaluation/metrics.py](src/evaluati
 
 ## 8. Estratégia de modelagem
 
-A abordagem sugerida é:
+A abordagem implementada neste projeto segue a lógica de baseline + comparação de modelos, sempre preservando a regra de validação por município.
 
 ### Baseline
 - Regressão logística
 
 ### Modelos comparados
+- regressão logística
 - árvore de decisão
 - random forest
-- XGBoost ou LightGBM, se disponível
 
 ### Validação
-- holdout final
-- validação cruzada com agrupamento por município
+- holdout final para avaliação pontual
+- validação cruzada por município com `StratifiedGroupKFold`
 
 ### Importante
-- `id_municipio` deve ser usado apenas na validação
-- o objetivo é medir generalização real, não performance artificial por município repetido
+- `id_municipio` é usado como agrupamento e não como feature
+- o objetivo é medir generalização real e evitar vazamento por município repetido
+- o módulo de comparação expõe a performance média por modelo e a dispersão da métrica
 
 ---
 
@@ -226,6 +236,7 @@ Esses testes cubrem:
 - matrizes de features
 - split e treino
 - métricas de classificação
+- comparação de modelos com validação por município
 
 ### Resultado verificado
 
@@ -238,7 +249,7 @@ python -m pytest -q tests/test_feature_engineering.py tests/test_modeling.py tes
 E o resultado verificado foi:
 
 ```text
-8 passed in 0.99s
+9 passed in 2.16s
 ```
 
 ---
@@ -248,45 +259,27 @@ E o resultado verificado foi:
 A documentação adicional do projeto está em:
 
 - [reports/dicionario_dados.md](reports/dicionario_dados.md)
-- [reports/plano_organizacao_projeto.md](reports/plano_organizacao_projeto.md)
 - [reports/readme_secao_base.md](reports/readme_secao_base.md)
 
-Esses arquivos detalham o dicionário de dados, a arquitetura do projeto e a lógica da base analítica.
+Esses arquivos detalham o dicionário de dados e a lógica da base analítica.
 
 ---
 
 ## 12. Status do projeto
 
-A estrutura atual foi organizada para apoiar o desenvolvimento do fluxo principal do projeto, com separação por responsabilidade e validação dos módulos principais.
+A estrutura atual foi organizada para apoiar o fluxo principal do projeto, com separação por responsabilidade, controle de leakage e comparação de modelos por município. O repositório já está em um estado funcional de treino, avaliação e validação inicial.
 
 ---
 
 ## 13. Próximos passos sugeridos
 
-1. finalizar treino e validação baseline
-2. implementar tuning e validação cruzada por município
-3. comparar modelos e registrar métricas
-4. criar ranking de risco e previsão
-5. concluir documentação e relatórios finais para apresentação
+1. implementar tuning de hiperparâmetros com busca automatizada
+2. ampliar a comparação de modelos com mais algoritmos e configurações
+3. criar camada de ranking de risco e priorização por município
+4. consolidar relatórios e análises executivas para apresentação final
 
 ---
 
 ## 14. Conclusão
 
-Este repositório foi organizado para apoiar a análise, a modelagem e a avaliação de indicadores de alfabetização com foco em metodologia, rastreabilidade e controle de vazamento de informação.
-
----
-
-## 13. Próximos passos sugeridos
-
-1. finalizar treino e validação baseline
-2. implementar tuning e validação cruzada por município
-3. comparar modelos e registrar métricas
-4. criar ranking de risco e previsão
-5. finalizar README e relatórios finais para apresentação
-
----
-
-## 14. Conclusão
-
-Este repositório foi organizado para apoiar a análise, a modelagem e a avaliação de indicadores de alfabetização com foco em metodologia, rastreabilidade e controle de vazamento de informação.
+Este repositório foi organizado para apoiar a análise, a modelagem e a avaliação de indicadores de alfabetização com foco em metodologia, rastreabilidade, controle de vazamento de informação e comparação objetiva de modelos. O projeto já atende ao escopo técnico principal do desafio e está preparado para evoluir para etapas mais avançadas de tuning e aplicação estratégica.
