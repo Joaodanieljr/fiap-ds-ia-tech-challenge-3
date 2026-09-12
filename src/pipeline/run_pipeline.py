@@ -19,7 +19,7 @@ from src.features.feature_engineering import (
     fill_missing_values,
     normalize_columns,
 )
-from src.modeling.train_model import split_data, train_baseline_model
+from src.modeling.train_model import compare_models, split_data, train_baseline_model
 
 
 def run_pipeline(data_path: str | Path, required_columns: list[str]) -> object:
@@ -83,3 +83,9 @@ def run_training_pipeline(df: pd.DataFrame, target_column: str = "alfabetizado",
         "model": model,
         "metrics": compute_classification_metrics(y_test, y_pred, y_proba),
     }
+
+
+def run_model_comparison(df: pd.DataFrame, target_column: str = "alfabetizado", group_column: str = "id_municipio", metric: str = "f1") -> list[dict]:
+    """Executa comparação de modelos usando validação cruzada por município."""
+    X, y, groups = build_feature_matrix(df, target_column=target_column, group_column=group_column)
+    return compare_models(X, y[target_column], groups[group_column], metric=metric)
