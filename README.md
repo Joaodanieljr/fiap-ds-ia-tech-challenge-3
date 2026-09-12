@@ -1,32 +1,44 @@
 # fiap-ds-ia-tech-challenge-3
 
-Projeto genérico de Data Science e IA com estrutura organizada para desenvolvimento, treinamento e avaliação de modelos.
+Projeto de Data Science e IA para o Tech Challenge Fase 3, com foco em predição de alfabetização no contexto educacional brasileiro.
 
 ## Objetivo
 
-Este repositório serve como base para projetos de análise e modelagem preditiva, seguindo boas práticas de organização, versionamento e reutilização de código.
+Este repositório organiza o fluxo de análise, preparação de dados, engenharia de features, treinamento e avaliação de modelos para prever indicadores de alfabetização.
 
 ## Estrutura do projeto
 
-- `data/` - dados brutos, intermediários e finais
-- `notebooks/` - notebooks de exploração e análise
-- `src/` - código-fonte do projeto
-  - `src/preprocessing/` - limpeza, tratamento e preparação dos dados
-  - `src/modeling/` - treinamento e persistência de modelos
-  - `src/evaluation/` - métricas, validação e comparação de resultados
-  - `src/visualization/` - geração de gráficos e relatórios visuais
-- `reports/` - relatórios, resultados e documentação
-- `images/` - figuras, gráficos e artefatos visuais
-- `requirements.txt` - dependências do projeto
+- `data/` - dados brutos e processados
+- `notebooks/` - notebooks de exploração e prototipagem
+- `src/` - código reutilizável do projeto
+  - `src/data/` - carregamento e validação de dados
+  - `src/features/` - engenharia de features e transformação
+  - `src/modeling/` - treinamento e seleção de modelos
+  - `src/evaluation/` - métricas e validação
+  - `src/visualization/` - gráficos e análises visuais
+  - `src/pipeline/` - orquestração do fluxo principal
+  - `src/utils/` - utilitários gerais
+- `reports/` - documentação e relatórios
+- `images/` - artefatos visuais
+- `tests/` - testes automatizados
+- `requirements.txt` - dependências
 
-## Fluxo de trabalho sugerido
+## Fluxo recomendado
 
-1. Coleta e organização dos dados em `data/`
-2. Exploração em notebooks em `notebooks/`
-3. Limpeza e transformação em `src/preprocessing/`
-4. Treinamento do modelo em `src/modeling/`
-5. Avaliação e comparação em `src/evaluation/`
-6. Visualização e comunicação dos resultados em `src/visualization/`
+1. Carregar a base analítica em `data/`
+2. Validar colunas e integridade dos dados
+3. Normalizar e transformar features em `src/features/`
+4. Treinar e comparar modelos em `src/modeling/`
+5. Avaliar resultado em `src/evaluation/`
+6. Gerar visualizações em `src/visualization/`
+7. Orquestrar o pipeline em `src/pipeline/`
+
+## Regras importantes do domínio
+
+- `id_municipio` deve ser tratado como texto com zeros à esquerda.
+- A base deve manter separação clara entre features do aluno, do município e contextuais.
+- O processo deve evitar vazamento de informação agregada em features do alvo.
+- A validação do schema e das colunas é obrigatória antes do treino.
 
 ## Configuração do ambiente
 
@@ -37,19 +49,9 @@ source .venv/bin/activate   # Linux/macOS
 pip install -r requirements.txt
 ```
 
-## Boas práticas
+## Próximos passos
 
-- Separar dados, código e resultados em pastas específicas
-- Usar notebooks apenas para exploração e prototipagem
-- Centralizar lógica reutilizável em módulos Python em `src/`
-- Registrar métricas e versões dos experimentos
-- Documentar hipóteses, decisões e resultados em relatórios
-
-## Versionamento
-
-Este projeto também foi pensado para demonstrar boas práticas de Git, incluindo:
-
-- histórico de commits
-- branches e merges
-- organização de alterações por contexto
-- controle de versões de código e artefatos
+- extrair a lógica dos notebooks para módulos em `src/`
+- padronizar nomes e convenções de colunas
+- revisar variáveis sensíveis e risco de vazamento
+- estruturar o pipeline de treino e avaliação de forma reprodutível
