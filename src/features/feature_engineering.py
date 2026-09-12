@@ -42,3 +42,35 @@ def fill_missing_values(df: pd.DataFrame, strategy: str = "median") -> pd.DataFr
                     df[column] = df[column].fillna("desconhecido")
 
     return df
+
+
+def create_missing_history_flag(df: pd.DataFrame, columns: list[str] | None = None) -> pd.DataFrame:
+    """Cria um indicador para municípios sem histórico de 2023."""
+    df = df.copy()
+    target_columns = columns or ["taxa_municipio_2023", "media_portugues_municipio_2023"]
+
+    available_columns = [column for column in target_columns if column in df.columns]
+    if not available_columns:
+        df["sem_historico_2023"] = 0
+        return df
+
+    df["sem_historico_2023"] = df[available_columns].isnull().any(axis=1).astype(int)
+    return df
+
+
+def add_sector_participation_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Cria participações setoriais a partir do PIB e dos valores adicionados."""
+    df = df.copy()
+
+    sector_columns = {
+        "participacao_agropecuaria": "va_agropecuaria",
+        "participacao_industria": "va_industria",
+        "participacao_servicos": "va_servicos",
+        "participacao_adespss": "va_adespss",
+    }
+
+    for new_column, base_column in sector_columns.items():
+        if base_column in df.columns and "pib" in df.columns:
+            df[new_column] = df[base_column].div(df["pib"].replace(0, pd.NA))
+
+    return df
