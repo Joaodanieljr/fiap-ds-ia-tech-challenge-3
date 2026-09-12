@@ -9,8 +9,13 @@ from sklearn.model_selection import StratifiedGroupKFold, train_test_split
 
 
 def split_data(X, y, test_size: float = 0.2, random_state: int = 42, stratify: Any | None = None):
-    """Divide os dados em treino e teste, com apoio opcional para stratify."""
-    return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=stratify)
+    """Divide os dados em treino e teste, com fallback para datasets pequenos."""
+    try:
+        return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=stratify)
+    except ValueError:
+        if stratify is None:
+            raise
+        return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
 
 def group_kfold_split(X, groups, n_splits: int = 5, shuffle: bool = True, random_state: int = 42):
