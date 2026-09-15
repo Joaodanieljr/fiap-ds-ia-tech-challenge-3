@@ -22,6 +22,17 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _carregar_base(data_path: Path) -> pd.DataFrame:
+    """Lê a base analítica em Parquet ou CSV, conforme a extensão do arquivo.
+
+    A base oficial do projeto é Parquet: preserva os tipos das colunas, em especial
+    id_municipio como texto com zeros à esquerda, que o CSV perderia.
+    """
+    if data_path.suffix.lower() == ".parquet":
+        return pd.read_parquet(data_path)
+    return pd.read_csv(data_path, dtype={"id_municipio": str})
+
+
 def main() -> None:
     args = parse_args()
     data_path = Path(args.data_path)
@@ -29,7 +40,7 @@ def main() -> None:
     if not data_path.exists():
         raise FileNotFoundError(f"Arquivo não encontrado: {data_path}")
 
-    df = pd.read_csv(data_path)
+    df = _carregar_base(data_path)
     if args.compare_models:
         comparison = run_model_comparison(df, target_column=args.target_column, group_column=args.group_column, metric=args.metric)
         print("Comparação de modelos por município:")
