@@ -57,8 +57,6 @@ def _prepare_model_features(X: pd.DataFrame | Any) -> pd.DataFrame:
         "id_escola",
         "id_municipio",
         "nome_municipio",
-        "nome_regiao",
-        "nome_mesorregiao",
         "peso_aluno",
     }
 
